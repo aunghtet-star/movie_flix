@@ -11,10 +11,32 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::all();
-        return view('admin.users.index', compact('users'));
+        // Get search query if exists
+        $search = $request->get('search');
+
+        // Build query with search functionality
+        $query = User::query();
+
+        if ($search) {
+            $query->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+        }
+
+        // Get users with pagination
+        $users = $query->latest()->paginate(10)->appends($request->query());
+
+        // Get user statistics
+        $stats = [
+            'total_users' => User::count(),
+            'new_users_this_month' => User::whereMonth('created_at', now()->month)
+                                         ->whereYear('created_at', now()->year)
+                                         ->count(),
+            'active_users' => User::whereDate('updated_at', '>=', now()->subDays(30))->count(),
+        ];
+
+        return view('admin.users.index', compact('users', 'stats', 'search'));
     }
 
     public function create()

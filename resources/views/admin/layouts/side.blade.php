@@ -60,15 +60,6 @@
                         Movies
                     </a>
                 </li>
-                <li class="mb-1">
-                    <p class="px-4 py-2 text-xs text-slate-400 uppercase font-semibold">Settings</p>
-                </li>
-                <li class="mb-1">
-                    <a href="#" class="nav-link flex items-center px-4 py-2 text-slate-300 hover:bg-slate-700 rounded-md" data-section="settings">
-                        <i class="fas fa-cog w-5 mr-2"></i>
-                        Settings
-                    </a>
-                </li>
             </ul>
         </nav>
 

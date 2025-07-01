@@ -96,30 +96,107 @@
                         class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded shadow">
                     Create Movie
                 </button>
-                <a href="{{ route('movies.index') }}"
+                <a href="{{ route('admin_movies.index') }}"
                    class="text-blue-600 hover:underline ml-4">Cancel</a>
             </div>
         </form>
     </div>
+
+    <!-- Success/Error Messages -->
+    @if(session('success'))
+        <div class="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded shadow-lg z-50" id="success-message">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded shadow-lg z-50" id="error-message">
+            {{ session('error') }}
+        </div>
+    @endif
 @endsection
+
 @section('scripts')
     <script src="https://cdn.jsdelivr.net/npm/html-duration-picker@latest/dist/html-duration-picker.min.js"></script>
     <script>
         function previewImage(event) {
             const input = event.target;
             const preview = document.getElementById('preview-image');
-            const container = document.getElementById('preview-container');
 
             if (input.files && input.files[0]) {
+                const file = input.files[0];
+
+                // Validate file type
+                if (!file.type.startsWith('image/')) {
+                    alert('Please select a valid image file.');
+                    input.value = '';
+                    preview.classList.add('hidden');
+                    return;
+                }
+
+                // Validate file size (max 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('Image size should be less than 5MB.');
+                    input.value = '';
+                    preview.classList.add('hidden');
+                    return;
+                }
+
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     preview.src = e.target.result;
                     preview.classList.remove('hidden');
                 }
-                reader.readAsDataURL(input.files[0]);
+                reader.readAsDataURL(file);
             } else {
                 preview.src = "#";
                 preview.classList.add('hidden');
+            }
+        }
+
+        // Auto-hide success/error messages
+        document.addEventListener('DOMContentLoaded', function() {
+            const successMessage = document.getElementById('success-message');
+            const errorMessage = document.getElementById('error-message');
+
+            if (successMessage) {
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 5000);
+            }
+
+            if (errorMessage) {
+                setTimeout(() => {
+                    errorMessage.style.display = 'none';
+                }, 5000);
+            }
+
+            // Initialize duration picker if available
+            if (typeof HtmlDurationPicker !== 'undefined') {
+                HtmlDurationPicker.init();
+            }
+
+            // Validate form before submission
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(e) {
+                const downloadLink = document.getElementById('download_link').value;
+
+                // Basic URL validation
+                if (downloadLink && !isValidUrl(downloadLink)) {
+                    e.preventDefault();
+                    alert('Please enter a valid download URL.');
+                    return false;
+                }
+            });
+        });
+
+        // URL validation function
+        function isValidUrl(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (_) {
+                return false;
             }
         }
     </script>

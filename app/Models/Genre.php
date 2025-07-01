@@ -10,4 +10,12 @@ class Genre extends Model
     use HasFactory;
 
     protected $guarded = [];
+
+    /**
+     * Get the movies that belong to this genre.
+     */
+    public function movies()
+    {
+        return $this->hasMany(Movie::class);
+    }
 }

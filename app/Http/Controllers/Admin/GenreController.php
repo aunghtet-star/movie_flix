@@ -11,24 +11,49 @@ class GenreController extends Controller
     // Display a listing of the genres.
     public function index(Request $request)
     {
-
-        $genreCount = Genre::count(); // Get the total count of genres
         $search = $request->input('search');
 
+        // Build query with search functionality
+        $query = Genre::query();
 
-       //  If a search term is provided, filter the genres accordingly.
         if ($search) {
-            $genres = Genre::when($search, function($query, $search) {
-            return $query->where('name', 'like', "%{$search}%");
-        })
-            ->get();
-        } else {
-            $genres = Genre::all();
+            $query->where('name', 'like', "%{$search}%");
         }
 
-       // dd($genres); // Debugging line to check the genres retrieved
+        // Get genres with pagination and manually count movies
+        $genres = $query->latest()->paginate(10)->appends($request->query());
 
-        return view('admin.genres.index', compact('genres', 'search', 'genreCount'));
+        // Add movie counts manually for each genre
+        $genres->getCollection()->transform(function ($genre) {
+            $genre->movies_count = $genre->movies()->count();
+            return $genre;
+        });
+
+        // Get genre statistics
+        $stats = [
+            'total_genres' => Genre::count(),
+            'genres_with_movies' => Genre::has('movies')->count(),
+            'total_movies' => \App\Models\Movie::count(),
+            'average_movies_per_genre' => $this->calculateAverageMoviesPerGenre(),
+        ];
+
+        return view('admin.genres.index', compact('genres', 'search', 'stats'));
+    }
+
+    // Helper method to calculate average movies per genre
+    private function calculateAverageMoviesPerGenre()
+    {
+        $genres = Genre::all();
+        if ($genres->count() === 0) {
+            return 0;
+        }
+
+        $totalMovies = 0;
+        foreach ($genres as $genre) {
+            $totalMovies += $genre->movies()->count();
+        }
+
+        return round($totalMovies / $genres->count(), 1);
     }
 
     // Show the form for creating a new genre.
