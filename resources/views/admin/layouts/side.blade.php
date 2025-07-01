@@ -49,7 +49,13 @@
                     </a>
                 </li>
                 <li class="mb-1">
-                    <a href="#" class="nav-link flex items-center px-4 py-2 text-slate-300 hover:bg-slate-700 rounded-md" data-section="movies">
+                    <a href="{{route('genres.index')}}" class="nav-link flex items-center px-4 py-2 text-slate-300 hover:bg-slate-700 rounded-md" data-section="movies">
+                        <i class="fas fa-theater-masks genre-drama w-5 mr-2"></i>
+                        Genres
+                    </a>
+                </li>
+                <li class="mb-1">
+                    <a href="{{route('admin_movies.index')}}" class="nav-link flex items-center px-4 py-2 text-slate-300 hover:bg-slate-700 rounded-md" data-section="movies">
                         <i class="fas fa-film w-5 mr-2"></i>
                         Movies
                     </a>
@@ -67,11 +73,15 @@
         </nav>
 
         <!-- Logout -->
+
         <div class="p-4 border-t border-slate-700">
-            <a href="#" class="flex items-center text-slate-300 hover:text-white">
-                <i class="fas fa-sign-out-alt mr-2"></i>
-                Logout
-            </a>
+            <form method="POST" action="{{ route('admin.logout') }}">
+                @csrf
+                <button type="submit" class="flex items-center text-slate-300 hover:text-white w-full">
+                    <i class="fas fa-sign-out-alt mr-2"></i>
+                    Logout
+                </button>
+            </form>
         </div>
     </div>
 </aside>

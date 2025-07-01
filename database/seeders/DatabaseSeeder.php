@@ -19,8 +19,13 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
 
+//        $this->call([
+//            AdminSeeder::class,
+//        ]);
+
         $this->call([
-            AdminSeeder::class,
+            \Database\Seeders\GenreSeeder::class,
+            \Database\Seeders\MovieSeeder::class,
         ]);
     }
 }
