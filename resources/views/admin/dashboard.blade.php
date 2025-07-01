@@ -1,7 +1,7 @@
 @extends('admin.layouts.app')
 
 @section('content')
-    <div id="dashboard-section" class="content-section">
+    <div id="dashboard-section" class="content-section p-12">
         <h2 class="text-2xl font-semibold mb-6">Dashboard</h2>
 
         <!-- Stats Cards -->

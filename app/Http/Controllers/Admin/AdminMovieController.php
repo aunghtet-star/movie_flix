@@ -127,45 +127,69 @@ class AdminMovieController extends Controller
     // Update a movie
     public function update(Request $request, $id)
     {
+        try {
+            $movie = Movie::findOrFail($id);
 
-        $movie = Movie::findOrFail($id);
-        $validated = $request->validate([
-            'picture' => 'nullable|image',
-            'actor' => 'required',
-            'actress' => 'required',
-            'long_time' => 'required',
-            'download_link' => 'required',
-            'title' => 'required|string|max:255',
-            'genre_id' => 'required',
-            'description' => 'nullable|string',
-            'year' => 'required|digits:4|integer',
-        ]);
+            $validated = $request->validate([
+                'picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+                'title' => 'required|string|max:255|unique:movies,title,' . $movie->id,
+                'actor' => 'required|string|max:255',
+                'actress' => 'required|string|max:255',
+                'long_time' => 'required|string|max:50',
+                'download_link' => 'required|url|max:500',
+                'genre_id' => 'required|exists:genres,id',
+                'description' => 'nullable|string|max:1000',
+                'year' => 'required|digits:4|integer|min:1900|max:' . date('Y'),
+            ]);
 
-        // Handle picture upload if present
-        if ($request->hasFile('picture')) {
-            $path = $request->file('picture')->store('movies', 'public');
-            $validated['picture'] = $path;
-        } else {
-            // Keep the old picture if not uploading a new one
-            $validated['picture'] = $movie->picture;
+            // Handle picture upload if present
+            if ($request->hasFile('picture')) {
+                // Delete old picture if exists
+                if ($movie->picture) {
+                    \Storage::disk('public')->delete($movie->picture);
+                }
+                $path = $request->file('picture')->store('movies', 'public');
+                $validated['picture'] = $path;
+            } else {
+                // Keep the old picture if not uploading a new one
+                $validated['picture'] = $movie->picture;
+            }
+
+            $movie->update($validated);
+
+            return redirect()->route('admin_movies.index')
+                           ->with('success', 'Movie updated successfully!');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()
+                           ->withErrors($e->errors())
+                           ->withInput()
+                           ->with('error', 'Please fix the validation errors below.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                           ->withInput()
+                           ->with('error', 'Failed to update movie. Please try again.');
         }
-
-
-        $movie->update($validated);
-
-        return redirect()->route('admin_movies.index');
     }
 
     // Delete a movie
-    public function destroy($id){
-        $movie = Movie::findOrFail($id);
-        // Optionally, you can also delete the picture file from storage
-        if ($movie->picture) {
-            \Storage::disk('public')->delete($movie->picture);
+    public function destroy($id)
+    {
+        try {
+            $movie = Movie::findOrFail($id);
+            $movieTitle = $movie->title;
+
+            // Delete the picture file from storage
+            if ($movie->picture) {
+                \Storage::disk('public')->delete($movie->picture);
+            }
+
+            $movie->delete();
+
+            return redirect()->route('admin_movies.index')
+                           ->with('success', "Movie '{$movieTitle}' deleted successfully!");
+        } catch (\Exception $e) {
+            return redirect()->route('admin_movies.index')
+                           ->with('error', 'Failed to delete movie. Please try again.');
         }
-        $movie->delete();
-
-        return redirect()->route('admin_movies.index')->with('success', 'Movie deleted successfully.');
-
     }
 }

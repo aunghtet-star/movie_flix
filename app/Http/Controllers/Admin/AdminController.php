@@ -21,12 +21,26 @@ class AdminController extends Controller
 
     public function store(Request $request)
     {
-        Admin::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt($request->password),
-        ]);
-        return redirect()->route('admins.index');
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:admins',
+                'password' => 'required|string|min:8',
+            ]);
+
+            Admin::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => bcrypt($validated['password']),
+            ]);
+
+            return redirect()->route('admins.index')
+                           ->with('success', 'Admin created successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                           ->withInput()
+                           ->with('error', 'Failed to create admin. Please try again.');
+        }
     }
 
     public function edit($id)
@@ -37,19 +51,42 @@ class AdminController extends Controller
 
     public function update(Request $request, $id)
     {
-        $admin = Admin::findOrFail($id);
-        $admin->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => $request->password ? bcrypt($request->password) : $admin->password,
-        ]);
-        return redirect()->route('admins.index');
+        try {
+            $admin = Admin::findOrFail($id);
+
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:admins,email,' . $admin->id,
+                'password' => 'nullable|string|min:8',
+            ]);
+
+            $admin->update([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => $validated['password'] ? bcrypt($validated['password']) : $admin->password,
+            ]);
+
+            return redirect()->route('admins.index')
+                           ->with('success', 'Admin updated successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                           ->withInput()
+                           ->with('error', 'Failed to update admin. Please try again.');
+        }
     }
 
     public function destroy($id)
     {
-        Admin::findOrFail($id)->delete();
-        return redirect()->route('admins.index');
+        try {
+            $admin = Admin::findOrFail($id);
+            $adminName = $admin->name;
+            $admin->delete();
+
+            return redirect()->route('admins.index')
+                           ->with('success', "Admin '{$adminName}' deleted successfully!");
+        } catch (\Exception $e) {
+            return redirect()->route('admins.index')
+                           ->with('error', 'Failed to delete admin. Please try again.');
+        }
     }
 }
-

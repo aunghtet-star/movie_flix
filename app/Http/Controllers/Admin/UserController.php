@@ -46,12 +46,26 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt($request->password),
-        ]);
-        return redirect()->route('users.index');
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:users',
+                'password' => 'required|string|min:8',
+            ]);
+
+            User::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => bcrypt($validated['password']),
+            ]);
+
+            return redirect()->route('users.index')
+                           ->with('success', 'User created successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                           ->withInput()
+                           ->with('error', 'Failed to create user. Please try again.');
+        }
     }
 
     public function edit($id)
@@ -62,18 +76,42 @@ class UserController extends Controller
 
     public function update(Request $request, $id)
     {
-        $user = User::findOrFail($id);
-        $user->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => $request->password ? bcrypt($request->password) : $user->password,
-        ]);
-        return redirect()->route('users.index');
+        try {
+            $user = User::findOrFail($id);
+
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+                'password' => 'nullable|string|min:8',
+            ]);
+
+            $user->update([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => $validated['password'] ? bcrypt($validated['password']) : $user->password,
+            ]);
+
+            return redirect()->route('users.index')
+                           ->with('success', 'User updated successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                           ->withInput()
+                           ->with('error', 'Failed to update user. Please try again.');
+        }
     }
 
     public function destroy($id)
     {
-        User::findOrFail($id)->delete();
-        return redirect()->route('users.index');
+        try {
+            $user = User::findOrFail($id);
+            $userName = $user->name;
+            $user->delete();
+
+            return redirect()->route('users.index')
+                           ->with('success', "User '{$userName}' deleted successfully!");
+        } catch (\Exception $e) {
+            return redirect()->route('users.index')
+                           ->with('error', 'Failed to delete user. Please try again.');
+        }
     }
 }

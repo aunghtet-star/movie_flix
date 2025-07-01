@@ -68,34 +68,127 @@ class MovieController extends Controller
 
     public function show($id)
     {
-        $movie = Movie::with('genre')->findOrFail($id);
+        $movie = Movie::with(['genre', 'ratings.user'])->findOrFail($id);
 
         // Increment view count
         $movie->increment('views');
 
-        return view('frontend.movie_details_page', compact('movie'));
+        // Get user's rating if authenticated
+        $userRating = auth()->check() ? $movie->userRating(auth()->id()) : null;
+
+        return view('frontend.movie_details_page', compact('movie', 'userRating'));
     }
 
-// Handle rating submission
+    /**
+     * Rate a movie
+     */
     public function rate(Request $request, $id)
     {
-        $movie = Movie::findOrFail($id);
-
-        // Validate the rating input)
-        {
+        try {
             $request->validate([
-                'rating' => 'required|numeric|min:0|max:10',
+                'rating' => 'required|integer|min:1|max:5',
+                'review' => 'nullable|string|max:1000',
             ]);
 
-            // Update average rating (simple approach)
-            $totalRating = ($movie->ratings * $movie->ratings_count) + $request->rating;
-            $movie->ratings_count += 1;
-            $movie->ratings = $totalRating / $movie->ratings_count;
-            $movie->save();
+            $movie = Movie::findOrFail($id);
+            $userId = auth()->id();
 
-            return redirect()->route('moviePage.show', $movie->id)->with('success', 'Thanks for rating!');
+            // Check if user already rated this movie
+            $existingRating = $movie->ratings()->where('user_id', $userId)->first();
+
+            if ($existingRating) {
+                // Update existing rating
+                $existingRating->update([
+                    'rating' => $request->rating,
+                    'review' => $request->review,
+                ]);
+                $message = 'Your rating has been updated successfully!';
+            } else {
+                // Create new rating
+                $movie->ratings()->create([
+                    'user_id' => $userId,
+                    'rating' => $request->rating,
+                    'review' => $request->review,
+                ]);
+                $message = 'Thank you for rating this movie!';
+            }
+
+            // The average rating will be automatically updated via the model boot method
+
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'average_rating' => $movie->fresh()->average_rating,
+                'total_ratings' => $movie->fresh()->total_ratings,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to submit rating. Please try again.',
+            ], 500);
         }
     }
+
+    /**
+     * Delete user's rating for a movie
+     */
+    public function deleteRating($id)
+    {
+        try {
+            $movie = Movie::findOrFail($id);
+            $userId = auth()->id();
+
+            $rating = $movie->ratings()->where('user_id', $userId)->first();
+
+            if (!$rating) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No rating found to delete.',
+                ], 404);
+            }
+
+            $rating->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Your rating has been removed successfully!',
+                'average_rating' => $movie->fresh()->average_rating,
+                'total_ratings' => $movie->fresh()->total_ratings,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to remove rating. Please try again.',
+            ], 500);
+        }
+    }
+
+    /**
+     * Get user's rating for a movie
+     */
+    public function getUserRating($id)
+    {
+        try {
+            $movie = Movie::findOrFail($id);
+            $userId = auth()->id();
+
+            $rating = $movie->ratings()->where('user_id', $userId)->first();
+
+            return response()->json([
+                'rating' => $rating ? $rating->rating : 0,
+                'review' => $rating ? $rating->review : null,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'rating' => 0,
+                'review' => null,
+            ]);
+        }
+    }
+
     public function search(Request $request)
     {
         // Use the same logic as index method for consistency

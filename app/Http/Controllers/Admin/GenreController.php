@@ -65,16 +65,22 @@ class GenreController extends Controller
     // Store a newly created genre in storage.
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255|unique:genres,name',
-        ]);
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255|unique:genres,name',
+            ]);
 
-        Genre::create([
-            'name' => $request->name,
-        ]);
+            Genre::create([
+                'name' => $validated['name'],
+            ]);
 
-        return redirect()->route('genres.index')
-            ->with('success', 'Genre created successfully.');
+            return redirect()->route('genres.index')
+                ->with('success', 'Genre created successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                           ->withInput()
+                           ->with('error', 'Failed to create genre. Please try again.');
+        }
     }
 
     // Display the specified genre.
@@ -92,24 +98,43 @@ class GenreController extends Controller
     // Update the specified genre in storage.
     public function update(Request $request, Genre $genre)
     {
-        $request->validate([
-            'name' => 'required|string|max:255|unique:genres,name,' . $genre->id,
-        ]);
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255|unique:genres,name,' . $genre->id,
+            ]);
 
-        $genre->update([
-            'name' => $request->name,
-        ]);
+            $genre->update([
+                'name' => $validated['name'],
+            ]);
 
-        return redirect()->route('genres.index')
-            ->with('success', 'Genre updated successfully.');
+            return redirect()->route('genres.index')
+                ->with('success', 'Genre updated successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                           ->withInput()
+                           ->with('error', 'Failed to update genre. Please try again.');
+        }
     }
 
     // Remove the specified genre from storage.
     public function destroy(Genre $genre)
     {
-        $genre->delete();
+        try {
+            $genreName = $genre->name;
 
-        return redirect()->route('genres.index')
-            ->with('success', 'Genre deleted successfully.');
+            // Check if genre has movies
+            if ($genre->movies()->count() > 0) {
+                return redirect()->route('genres.index')
+                    ->with('warning', "Cannot delete genre '{$genreName}' because it has movies assigned to it.");
+            }
+
+            $genre->delete();
+
+            return redirect()->route('genres.index')
+                ->with('success', "Genre '{$genreName}' deleted successfully!");
+        } catch (\Exception $e) {
+            return redirect()->route('genres.index')
+                           ->with('error', 'Failed to delete genre. Please try again.');
+        }
     }
 }

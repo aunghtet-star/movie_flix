@@ -23,6 +23,7 @@
 <div class="w-full max-w-md">
     <!-- Logo -->
     <div class="text-center mb-8">
+        <h1 class="text-movieRed text-4xl font-bold tracking-wider">ADMIN PANEL</h1>
         <h1 class="text-movieRed text-4xl font-bold tracking-wider">MOVIEFLIX</h1>
     </div>
 
@@ -67,13 +68,6 @@
             </button>
         </form>
 
-        <!-- Additional Links -->
-        <div class="mt-6 text-center text-sm">
-            <a href="#" class="text-gray-400 hover:text-white">Forgot password?</a>
-            <p class="mt-4 text-gray-400">
-                New to MovieFlix? <a href="#" class="text-white hover:underline">Sign up now</a>
-            </p>
-        </div>
     </div>
 </div>
 </body>

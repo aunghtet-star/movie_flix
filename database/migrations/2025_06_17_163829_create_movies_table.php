@@ -13,19 +13,24 @@ return new class extends Migration
     {
         Schema::create('movies', function (Blueprint $table) {
             $table->id();
-            $table->string('picture'); // URL or path
             $table->string('title');
+            $table->text('description')->nullable();
+            $table->string('picture')->nullable();
             $table->string('actor');
             $table->string('actress');
-            $table->unsignedBigInteger('genre_id');
-            $table->text('description')->nullable();
+            $table->string('long_time'); // duration
+            $table->string('download_link');
+            $table->foreignId('genre_id')->constrained()->onDelete('cascade');
             $table->year('year');
-            $table->string('download_link')->nullable();
-            $table->string('long_time')->nullable();
-            $table->unsignedBigInteger('views')->default(0);
-            $table->decimal('ratings', 3, 1)->default(0.0);
-            $table->unsignedBigInteger('ratings_count')->default(0);
+            $table->integer('views')->default(0);
+            $table->decimal('average_rating', 3, 1)->default(0);
+            $table->integer('total_ratings')->default(0);
             $table->timestamps();
+
+            // Add indexes for better performance
+            $table->index(['genre_id', 'year']);
+            $table->index(['average_rating', 'total_ratings']);
+            $table->index('views');
         });
     }
 

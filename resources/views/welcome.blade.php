@@ -199,7 +199,7 @@
                                 <div
                                     class="aspect-[2/3] bg-gray-800 rounded-lg overflow-hidden group-hover:scale-105 transition-all duration-300 shadow-lg group-hover:shadow-2xl">
                                     @if($movie->picture)
-                                        <img src="{{ asset('storage/' . $movie->image) }}" alt="{{ $movie->title }}"
+                                        <img src="{{ asset('storage/' . $movie->picture) }}" alt="{{ $movie->title }}"
                                              class="w-full h-full object-cover">
                                     @else
                                         <img src="{{ asset('image/movie.png') }}" alt="{{ $movie->title }}"
@@ -320,7 +320,7 @@
             </div>
 
             <!-- Movie Categories -->
-            <div class="mb-16">
+            <div class="mb-16" id="genre">
                 <div class="text-center mb-12">
                     <h3 class="text-2xl md:text-3xl font-bold text-white mb-4">Browse by Genre</h3>
                     <p class="text-gray-400 max-w-2xl mx-auto mb-8">Discover movies across all your favorite genres
