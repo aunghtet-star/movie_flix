@@ -8,8 +8,8 @@
             <!-- Movie Poster -->
             <div class="md:w-1/3">
                 <img src="{{ $movie->picture ? Storage::url($movie->picture) : '/image/movie.png' }}"
-                     alt="{{ $movie->title }}"
-                     class="w-full h-96 md:h-full object-cover">
+                    alt="{{ $movie->title }}"
+                    class="w-full h-96 md:h-full object-cover">
             </div>
 
             <!-- Movie Info -->
@@ -42,10 +42,10 @@
                         <div class="flex justify-center mb-1">
                             @for($i = 1; $i <= 5; $i++)
                                 <svg class="w-4 h-4 {{ $i <= ($movie->average_rating ?? 0) ? 'text-yellow-400' : 'text-gray-600' }}"
-                                     fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
                                 </svg>
-                            @endfor
+                                @endfor
                         </div>
                         <div class="text-xs text-gray-400">{{ $movie->total_ratings ?? 0 }} {{ Str::plural('rating', $movie->total_ratings ?? 0) }}</div>
                     </div>
@@ -53,7 +53,7 @@
 
                 <!-- Description -->
                 @if($movie->description)
-                    <p class="text-gray-300 leading-relaxed mb-6 text-lg">{{ $movie->description }}</p>
+                <p class="text-gray-300 leading-relaxed mb-6 text-lg">{{ $movie->description }}</p>
                 @endif
 
                 <!-- Cast Information -->
@@ -77,15 +77,35 @@
                 <!-- Action Buttons -->
                 <div class="flex flex-col sm:flex-row gap-4">
                     <a href="{{ $movie->download_link }}"
-                       target="_blank"
-                       class="flex-1 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white px-8 py-4 rounded-lg font-semibold transition duration-200 transform hover:scale-105 shadow-lg text-center">
+                        target="_blank"
+                        class="flex-1 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white px-8 py-4 rounded-lg font-semibold transition duration-200 transform hover:scale-105 shadow-lg text-center">
                         <i class="fas fa-download mr-2"></i>
                         Download Movie
                     </a>
-                    <button class="flex-1 bg-gray-700 hover:bg-gray-600 text-white px-6 py-4 rounded-lg font-semibold transition duration-200 border border-gray-600">
+
+                    @auth
+                    @if(auth()->user()->hasInWatchlist($movie->id))
+                    <button onclick="removeFromWatchlist({{ $movie->id }})"
+                        id="watchlist-btn"
+                        class="flex-1 bg-red-600 hover:bg-red-700 text-white px-6 py-4 rounded-lg font-semibold transition duration-200 border border-red-500">
+                        <i class="fas fa-check mr-2"></i>
+                        In Watchlist
+                    </button>
+                    @else
+                    <button onclick="addToWatchlist({{ $movie->id }})"
+                        id="watchlist-btn"
+                        class="flex-1 bg-gray-700 hover:bg-gray-600 text-white px-6 py-4 rounded-lg font-semibold transition duration-200 border border-gray-600">
                         <i class="fas fa-plus mr-2"></i>
                         Add to Watchlist
                     </button>
+                    @endif
+                    @else
+                    <a href="{{ route('login') }}"
+                        class="flex-1 bg-gray-700 hover:bg-gray-600 text-white px-6 py-4 rounded-lg font-semibold transition duration-200 border border-gray-600 text-center">
+                        <i class="fas fa-sign-in-alt mr-2"></i>
+                        Login to Add to Watchlist
+                    </a>
+                    @endauth
                 </div>
             </div>
         </div>
@@ -98,75 +118,187 @@
 
     <!-- Recent Reviews Section -->
     @php
-        $movieRatings = $movie->ratings()->whereNotNull('review')->with('user')->latest()->take(3)->get();
+    $movieRatings = $movie->ratings()->whereNotNull('review')->with('user')->latest()->take(3)->get();
     @endphp
     @if($movieRatings->count() > 0)
-        <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-2xl p-8 border border-gray-700 mb-8">
-            <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
-                <i class="fas fa-comments mr-3 text-orange-400"></i>
-                Recent Reviews
-            </h2>
-            <div class="space-y-4">
-                @foreach($movieRatings as $rating)
-                    <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
-                        <div class="flex items-start justify-between mb-2">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 bg-gradient-to-r from-orange-400 to-red-500 rounded-full flex items-center justify-center">
-                                    <span class="text-white font-medium text-sm">{{ substr($rating->user->name, 0, 1) }}</span>
-                                </div>
-                                <div>
-                                    <h4 class="font-medium text-white">{{ $rating->user->name }}</h4>
-                                    <div class="flex items-center space-x-1">
-                                        @for($i = 1; $i <= 5; $i++)
-                                            <svg class="w-4 h-4 {{ $i <= $rating->rating ? 'text-yellow-400' : 'text-gray-600' }}"
-                                                 fill="currentColor" viewBox="0 0 20 20">
-                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
-                                            </svg>
-                                        @endfor
-                                    </div>
-                                </div>
-                            </div>
-                            <span class="text-sm text-gray-400">{{ $rating->created_at->diffForHumans() }}</span>
+    <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-2xl p-8 border border-gray-700 mb-8">
+        <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+            <i class="fas fa-comments mr-3 text-orange-400"></i>
+            Recent Reviews
+        </h2>
+        <div class="space-y-4">
+            @foreach($movieRatings as $rating)
+            <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
+                <div class="flex items-start justify-between mb-2">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-gradient-to-r from-orange-400 to-red-500 rounded-full flex items-center justify-center">
+                            <span class="text-white font-medium text-sm">{{ substr($rating->user->name, 0, 1) }}</span>
                         </div>
-                        <p class="text-gray-300 leading-relaxed">{{ $rating->review }}</p>
+                        <div>
+                            <h4 class="font-medium text-white">{{ $rating->user->name }}</h4>
+                            <div class="flex items-center space-x-1">
+                                @for($i = 1; $i <= 5; $i++)
+                                    <svg class="w-4 h-4 {{ $i <= $rating->rating ? 'text-yellow-400' : 'text-gray-600' }}"
+                                    fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                    </svg>
+                                    @endfor
+                            </div>
+                        </div>
                     </div>
-                @endforeach
+                    <span class="text-sm text-gray-400">{{ $rating->created_at->diffForHumans() }}</span>
+                </div>
+                <p class="text-gray-300 leading-relaxed">{{ $rating->review }}</p>
             </div>
+            @endforeach
         </div>
+    </div>
     @endif
 
     <!-- Related Movies -->
     @if($movie->genre && $movie->genre->movies()->where('id', '!=', $movie->id)->exists())
-        <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-2xl p-8 border border-gray-700">
-            <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
-                <i class="fas fa-film mr-3 text-orange-400"></i>
-                More {{ $movie->genre->name }} Movies
-            </h2>
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                @foreach($movie->genre->movies()->where('id', '!=', $movie->id)->take(8)->get() as $relatedMovie)
-                    <a href="{{ route('moviePage.show', $relatedMovie->id) }}"
-                       class="group block bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-xl transition duration-200 border border-gray-700 hover:border-orange-500">
-                        <img src="{{ $relatedMovie->picture ? Storage::url($relatedMovie->picture) : '/image/movie.png' }}"
-                             alt="{{ $relatedMovie->title }}"
-                             class="w-full h-48 object-cover group-hover:scale-105 transition duration-200">
-                        <div class="p-4">
-                            <h3 class="font-semibold text-sm text-white truncate mb-2">{{ $relatedMovie->title }}</h3>
-                            <div class="flex items-center justify-between">
-                                <div class="flex">
-                                    @for($i = 1; $i <= 5; $i++)
-                                        <svg class="w-3 h-3 {{ $i <= ($relatedMovie->average_rating ?? 0) ? 'text-yellow-400' : 'text-gray-600' }}"
-                                             fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
-                                        </svg>
-                                    @endfor
-                                </div>
-                                <span class="text-xs text-gray-400">{{ number_format($relatedMovie->average_rating ?? 0, 1) }}</span>
-                            </div>
+    <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-2xl p-8 border border-gray-700">
+        <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+            <i class="fas fa-film mr-3 text-orange-400"></i>
+            More {{ $movie->genre->name }} Movies
+        </h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            @foreach($movie->genre->movies()->where('id', '!=', $movie->id)->take(8)->get() as $relatedMovie)
+            <a href="{{ route('moviePage.show', $relatedMovie->id) }}"
+                class="group block bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-xl transition duration-200 border border-gray-700 hover:border-orange-500">
+                <img src="{{ $relatedMovie->picture ? Storage::url($relatedMovie->picture) : '/image/movie.png' }}"
+                    alt="{{ $relatedMovie->title }}"
+                    class="w-full h-48 object-cover group-hover:scale-105 transition duration-200">
+                <div class="p-4">
+                    <h3 class="font-semibold text-sm text-white truncate mb-2">{{ $relatedMovie->title }}</h3>
+                    <div class="flex items-center justify-between">
+                        <div class="flex">
+                            @for($i = 1; $i <= 5; $i++)
+                                <svg class="w-3 h-3 {{ $i <= ($relatedMovie->average_rating ?? 0) ? 'text-yellow-400' : 'text-gray-600' }}"
+                                fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                </svg>
+                                @endfor
                         </div>
-                    </a>
-                @endforeach
-            </div>
+                        <span class="text-xs text-gray-400">{{ number_format($relatedMovie->average_rating ?? 0, 1) }}</span>
+                    </div>
+                </div>
+            </a>
+            @endforeach
         </div>
+    </div>
     @endif
 </div>
+
+<!-- Toast Notification -->
+<div id="toast" class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-x-full opacity-0 transition-all duration-300 z-50">
+    <div class="flex items-center">
+        <i class="fas fa-check-circle mr-2"></i>
+        <span id="toast-message"></span>
+    </div>
+</div>
+
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
+<script>
+    function addToWatchlist(movieId) {
+        const button = document.getElementById('watchlist-btn');
+        const originalContent = button.innerHTML;
+
+        // Show loading state
+        button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Adding...';
+        button.disabled = true;
+
+        fetch('{{ route("watchlist.store") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    movie_id: movieId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update button to "In Watchlist" state
+                    button.innerHTML = '<i class="fas fa-check mr-2"></i>In Watchlist';
+                    button.className = button.className.replace('bg-gray-700 hover:bg-gray-600', 'bg-red-600 hover:bg-red-700').replace('border-gray-600', 'border-red-500');
+                    button.onclick = () => removeFromWatchlist(movieId);
+                    showToast(data.message, 'success');
+                } else {
+                    button.innerHTML = originalContent;
+                    showToast(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                button.innerHTML = originalContent;
+                showToast('An error occurred', 'error');
+            })
+            .finally(() => {
+                button.disabled = false;
+            });
+    }
+
+    function removeFromWatchlist(movieId) {
+        const button = document.getElementById('watchlist-btn');
+        const originalContent = button.innerHTML;
+
+        // Show loading state
+        button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Removing...';
+        button.disabled = true;
+
+        fetch('{{ route("watchlist.destroy") }}', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    movie_id: movieId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update button to "Add to Watchlist" state
+                    button.innerHTML = '<i class="fas fa-plus mr-2"></i>Add to Watchlist';
+                    button.className = button.className.replace('bg-red-600 hover:bg-red-700', 'bg-gray-700 hover:bg-gray-600').replace('border-red-500', 'border-gray-600');
+                    button.onclick = () => addToWatchlist(movieId);
+                    showToast(data.message, 'success');
+                } else {
+                    button.innerHTML = originalContent;
+                    showToast(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                button.innerHTML = originalContent;
+                showToast('An error occurred', 'error');
+            })
+            .finally(() => {
+                button.disabled = false;
+            });
+    }
+
+    function showToast(message, type) {
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toast-message');
+
+        toastMessage.textContent = message;
+
+        if (type === 'error') {
+            toast.className = toast.className.replace('bg-green-500', 'bg-red-500');
+        } else {
+            toast.className = toast.className.replace('bg-red-500', 'bg-green-500');
+        }
+
+        toast.classList.remove('translate-x-full', 'opacity-0');
+
+        setTimeout(() => {
+            toast.classList.add('translate-x-full', 'opacity-0');
+        }, 3000);
+    }
+</script>
+
 @endsection

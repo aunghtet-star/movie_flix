@@ -123,4 +123,28 @@ class User extends Authenticatable
     {
         return $this->movieRatings()->where('movie_id', $movieId)->first();
     }
+
+    /**
+     * Get user's watchlist
+     */
+    public function watchlist()
+    {
+        return $this->hasMany(Watchlist::class);
+    }
+
+    /**
+     * Get movies in user's watchlist
+     */
+    public function watchlistMovies()
+    {
+        return $this->belongsToMany(Movie::class, 'watchlists');
+    }
+
+    /**
+     * Check if a movie is in user's watchlist
+     */
+    public function hasInWatchlist($movieId)
+    {
+        return $this->watchlist()->where('movie_id', $movieId)->exists();
+    }
 }

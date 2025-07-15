@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Genre;
 use App\Models\Movie;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class AdminMovieController extends Controller
 {
@@ -17,15 +18,17 @@ class AdminMovieController extends Controller
         $search = $request->input('search');
 
         // Build query with search functionality
-        $query = Movie::with('genre');
+        $query = Movie::with(['genre', 'ratings'])
+            ->withAvg('ratings', 'rating')
+            ->withCount('ratings');
 
         if ($search) {
             $query->where('title', 'like', "%{$search}%")
-                  ->orWhere('actor', 'like', "%{$search}%")
-                  ->orWhere('actress', 'like', "%{$search}%")
-                  ->orWhereHas('genre', function($q) use ($search) {
-                      $q->where('name', 'like', "%{$search}%");
-                  });
+                ->orWhere('actor', 'like', "%{$search}%")
+                ->orWhere('actress', 'like', "%{$search}%")
+                ->orWhereHas('genre', function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%");
+                });
         }
 
         // Get movies with pagination
@@ -36,8 +39,8 @@ class AdminMovieController extends Controller
             'total_movies' => Movie::count(),
             'total_views' => Movie::sum('views'),
             'movies_this_month' => Movie::whereMonth('created_at', now()->month)
-                                       ->whereYear('created_at', now()->year)
-                                       ->count(),
+                ->whereYear('created_at', now()->year)
+                ->count(),
             'average_rating' => Movie::whereNotNull('ratings')->avg('ratings') ?? 0,
             'total_genres' => Genre::count(),
             'top_genre' => $this->getTopGenre(),
@@ -50,8 +53,8 @@ class AdminMovieController extends Controller
     private function getTopGenre()
     {
         $topGenre = Genre::withCount('movies')
-                        ->orderBy('movies_count', 'desc')
-                        ->first();
+            ->orderBy('movies_count', 'desc')
+            ->first();
 
         return $topGenre ? $topGenre->name : 'None';
     }
@@ -94,17 +97,16 @@ class AdminMovieController extends Controller
             Movie::create($validated);
 
             return redirect()->route('admin_movies.index')
-                           ->with('success', 'Movie created successfully!');
-
+                ->with('success', 'Movie created successfully!');
         } catch (\Illuminate\Validation\ValidationException $e) {
             return redirect()->back()
-                           ->withErrors($e->errors())
-                           ->withInput()
-                           ->with('error', 'Please fix the validation errors below.');
+                ->withErrors($e->errors())
+                ->withInput()
+                ->with('error', 'Please fix the validation errors below.');
         } catch (\Exception $e) {
             return redirect()->back()
-                           ->withInput()
-                           ->with('error', 'An error occurred while creating the movie. Please try again.');
+                ->withInput()
+                ->with('error', 'An error occurred while creating the movie. Please try again.');
         }
     }
 
@@ -146,7 +148,7 @@ class AdminMovieController extends Controller
             if ($request->hasFile('picture')) {
                 // Delete old picture if exists
                 if ($movie->picture) {
-                    \Storage::disk('public')->delete($movie->picture);
+                    Storage::disk('public')->delete($movie->picture);
                 }
                 $path = $request->file('picture')->store('movies', 'public');
                 $validated['picture'] = $path;
@@ -158,16 +160,16 @@ class AdminMovieController extends Controller
             $movie->update($validated);
 
             return redirect()->route('admin_movies.index')
-                           ->with('success', 'Movie updated successfully!');
+                ->with('success', 'Movie updated successfully!');
         } catch (\Illuminate\Validation\ValidationException $e) {
             return redirect()->back()
-                           ->withErrors($e->errors())
-                           ->withInput()
-                           ->with('error', 'Please fix the validation errors below.');
+                ->withErrors($e->errors())
+                ->withInput()
+                ->with('error', 'Please fix the validation errors below.');
         } catch (\Exception $e) {
             return redirect()->back()
-                           ->withInput()
-                           ->with('error', 'Failed to update movie. Please try again.');
+                ->withInput()
+                ->with('error', 'Failed to update movie. Please try again.');
         }
     }
 
@@ -180,16 +182,16 @@ class AdminMovieController extends Controller
 
             // Delete the picture file from storage
             if ($movie->picture) {
-                \Storage::disk('public')->delete($movie->picture);
+                Storage::disk('public')->delete($movie->picture);
             }
 
             $movie->delete();
 
             return redirect()->route('admin_movies.index')
-                           ->with('success', "Movie '{$movieTitle}' deleted successfully!");
+                ->with('success', "Movie '{$movieTitle}' deleted successfully!");
         } catch (\Exception $e) {
             return redirect()->route('admin_movies.index')
-                           ->with('error', 'Failed to delete movie. Please try again.');
+                ->with('error', 'Failed to delete movie. Please try again.');
         }
     }
 }

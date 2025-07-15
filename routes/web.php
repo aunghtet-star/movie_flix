@@ -1,15 +1,16 @@
 <?php
 
-use App\Http\Controllers\Admin\AdminController;
-use App\Http\Controllers\Admin\AdminMovieController;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\GenreController;
 use App\Http\Controllers\Frontend\MovieController;
-use App\Http\Controllers\ProfileController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Admin\Auth\LoginController as AdminLoginController;
 use App\Http\Controllers\Admin\DashboardController;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Admin\AdminMovieController;
+use App\Http\Controllers\Admin\Auth\LoginController as AdminLoginController;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,7 +42,7 @@ Route::get('/', function () {
 
     foreach ($genres as $genre) {
         $genreMovies[$genre] = \App\Models\Movie::with('genre')
-            ->whereHas('genre', function($q) use ($genre) {
+            ->whereHas('genre', function ($q) use ($genre) {
                 $q->where('name', 'like', '%' . $genre . '%');
             })
             ->take(3)
@@ -58,13 +59,13 @@ Route::get('/dashboard', function () {
 
 // Profile Routes
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', function() {
+    Route::get('/profile', function () {
         return view('profile.edit', [
             'user' => auth()->user()
         ]);
     })->name('profile.edit');
 
-    Route::patch('/profile', function() {
+    Route::patch('/profile', function () {
         $user = auth()->user();
 
         request()->validate([
@@ -81,7 +82,7 @@ Route::middleware('auth')->group(function () {
     })->name('profile.update');
 
     // Password Update Route
-    Route::put('/password', function() {
+    Route::put('/password', function () {
         $user = auth()->user();
 
         request()->validate([
@@ -97,7 +98,7 @@ Route::middleware('auth')->group(function () {
     })->name('password.update');
 
     // Profile Photo Update Route
-    Route::patch('/profile/photo', function() {
+    Route::patch('/profile/photo', function () {
         $user = auth()->user();
 
         // Handle photo removal
@@ -163,8 +164,8 @@ Route::get('/movies', function () {
 
 Route::middleware('auth')->group(function () {
 
-    Route::get('/movie_page', [MovieController::class,'index'])->name('moviePage');
-    Route::get('/movie_page_details/{id}', [MovieController::class,'show'])->name('moviePage.show');
+    Route::get('/movie_page', [MovieController::class, 'index'])->name('moviePage');
+    Route::get('/movie_page_details/{id}', [MovieController::class, 'show'])->name('moviePage.show');
     Route::post('movies/{id}/rate', [MovieController::class, 'rate'])->name('movies.rate');
     Route::delete('movies/{id}/rate', [MovieController::class, 'deleteRating'])->name('movies.deleteRating');
     Route::get('movies/{id}/user-rating', [MovieController::class, 'getUserRating'])->name('movies.getUserRating');
@@ -193,4 +194,11 @@ Route::prefix('admin')->group(function () {
 Route::get('/auth/{provider}', [App\Http\Controllers\Auth\SocialAuthController::class, 'redirectToProvider'])->name('social.redirect');
 Route::get('/auth/{provider}/callback', [App\Http\Controllers\Auth\SocialAuthController::class, 'handleProviderCallback'])->name('social.callback');
 
-require __DIR__.'/auth.php';
+// Watchlist Routes (require authentication)
+Route::middleware('auth')->group(function () {
+    Route::get('/watchlist', [App\Http\Controllers\WatchlistController::class, 'index'])->name('watchlist.index');
+    Route::post('/watchlist', [App\Http\Controllers\WatchlistController::class, 'store'])->name('watchlist.store');
+    Route::delete('/watchlist', [App\Http\Controllers\WatchlistController::class, 'destroy'])->name('watchlist.destroy');
+});
+
+require __DIR__ . '/auth.php';

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,19 +15,27 @@
         /* Dynamic gradient background */
         .cinematic-bg {
             background: linear-gradient(135deg,
-                #0c0c0c 0%,
-                #1a1a1a 25%,
-                #0d1117 50%,
-                #161b22 75%,
-                #0c0c0c 100%);
+                    #0c0c0c 0%,
+                    #1a1a1a 25%,
+                    #0d1117 50%,
+                    #161b22 75%,
+                    #0c0c0c 100%);
             background-size: 400% 400%;
             animation: gradientShift 15s ease infinite;
         }
 
         @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
         }
 
         /* Floating particles effect */
@@ -51,12 +60,15 @@
                 transform: translateY(100vh) rotate(0deg);
                 opacity: 0;
             }
+
             10% {
                 opacity: 1;
             }
+
             90% {
                 opacity: 1;
             }
+
             100% {
                 transform: translateY(-100vh) rotate(360deg);
                 opacity: 0;
@@ -80,61 +92,62 @@
         }
     </style>
 </head>
+
 <body class="min-h-screen text-white relative overflow-x-hidden">
 
-<!-- New Dynamic Background -->
-<div class="fixed inset-0 cinematic-bg"></div>
+    <!-- New Dynamic Background -->
+    <div class="fixed inset-0 cinematic-bg"></div>
 
-<!-- Floating Particles -->
-<div class="particles fixed inset-0 pointer-events-none">
-    <div class="particle" style="left: 10%; animation-delay: -2s;"></div>
-    <div class="particle" style="left: 20%; animation-delay: -4s;"></div>
-    <div class="particle" style="left: 30%; animation-delay: -6s;"></div>
-    <div class="particle" style="left: 40%; animation-delay: -8s;"></div>
-    <div class="particle" style="left: 50%; animation-delay: -10s;"></div>
-    <div class="particle" style="left: 60%; animation-delay: -12s;"></div>
-    <div class="particle" style="left: 70%; animation-delay: -14s;"></div>
-    <div class="particle" style="left: 80%; animation-delay: -16s;"></div>
-    <div class="particle" style="left: 90%; animation-delay: -18s;"></div>
-</div>
+    <!-- Floating Particles -->
+    <div class="particles fixed inset-0 pointer-events-none">
+        <div class="particle" style="left: 10%; animation-delay: -2s;"></div>
+        <div class="particle" style="left: 20%; animation-delay: -4s;"></div>
+        <div class="particle" style="left: 30%; animation-delay: -6s;"></div>
+        <div class="particle" style="left: 40%; animation-delay: -8s;"></div>
+        <div class="particle" style="left: 50%; animation-delay: -10s;"></div>
+        <div class="particle" style="left: 60%; animation-delay: -12s;"></div>
+        <div class="particle" style="left: 70%; animation-delay: -14s;"></div>
+        <div class="particle" style="left: 80%; animation-delay: -16s;"></div>
+        <div class="particle" style="left: 90%; animation-delay: -18s;"></div>
+    </div>
 
-<!-- Film Strip Overlay -->
-<div class="film-strip fixed inset-0 pointer-events-none"></div>
+    <!-- Film Strip Overlay -->
+    <div class="film-strip fixed inset-0 pointer-events-none"></div>
 
-<!-- Navigation Header -->
-<nav class="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-gray-800">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16">
-            <!-- Logo -->
-            <div class="flex items-center">
-                <a href="{{ route('welcome') }}" class="flex items-center space-x-2">
-                    <div class="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-600 rounded-lg flex items-center justify-center">
-                        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M2 6a2 2 0 012-2h6l2 2h6a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"></path>
-                        </svg>
-                    </div>
-                    <span class="text-xl font-bold text-white">MovieFlix</span>
-                </a>
-            </div>
-
-            <!-- Navigation Links -->
-            <div class="hidden md:block">
-                <div class="ml-10 flex items-baseline space-x-4">
-                    <a href="{{ route('welcome') }}" class="text-gray-300 hover:text-orange-400 px-3 py-2 rounded-md text-sm font-medium transition duration-200">
-                        Home
-                    </a>
-                    <a href="{{ url('movie_page') }}" class="text-gray-300 hover:text-orange-400 px-3 py-2 rounded-md text-sm font-medium transition duration-200">
-                        Movies
-                    </a>
-                    <a href="#genre" class="text-gray-300 hover:text-orange-400 px-3 py-2 rounded-md text-sm font-medium transition duration-200">
-                        Genres
+    <!-- Navigation Header -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="{{ route('welcome') }}" class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-600 rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2 6a2 2 0 012-2h6l2 2h6a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"></path>
+                            </svg>
+                        </div>
+                        <span class="text-xl font-bold text-white">MovieFlix</span>
                     </a>
                 </div>
-            </div>
 
-            <!-- User Menu -->
-            <div class="flex items-center space-x-4">
-                @auth
+                <!-- Navigation Links -->
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="{{ route('welcome') }}" class="text-gray-300 hover:text-orange-400 px-3 py-2 rounded-md text-sm font-medium transition duration-200">
+                            Home
+                        </a>
+                        <a href="{{ url('movie_page') }}" class="text-gray-300 hover:text-orange-400 px-3 py-2 rounded-md text-sm font-medium transition duration-200">
+                            Movies
+                        </a>
+                        <a href="#genre" class="text-gray-300 hover:text-orange-400 px-3 py-2 rounded-md text-sm font-medium transition duration-200">
+                            Genres
+                        </a>
+                    </div>
+                </div>
+
+                <!-- User Menu -->
+                <div class="flex items-center space-x-4">
+                    @auth
 
 
                     <!-- User Dropdown -->
@@ -158,6 +171,12 @@
                                     </svg>
                                     Profile
                                 </a>
+                                <a href="{{ route('watchlist.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-300 hover:text-orange-400 hover:bg-gray-800/50 transition duration-200">
+                                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+                                    </svg>
+                                    My Watchlist
+                                </a>
 
                                 <div class="border-t border-gray-700 my-1"></div>
                                 <button type="button" onclick="confirmLogout()" class="flex items-center w-full px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-gray-800/50 transition duration-200">
@@ -173,7 +192,7 @@
                             </div>
                         </div>
                     </div>
-                @else
+                    @else
                     <!-- Guest Links -->
                     <div class="flex items-center space-x-3">
                         <a href="{{ route('login') }}" class="text-gray-300 hover:text-orange-400 px-3 py-2 rounded-md text-sm font-medium transition duration-200">
@@ -183,80 +202,81 @@
                             Sign Up
                         </a>
                     </div>
-                @endauth
+                    @endauth
 
-                <!-- Mobile menu button -->
-                <div class="md:hidden">
-                    <button x-data="{ mobileOpen: false }" @click="mobileOpen = !mobileOpen" class="text-gray-300 hover:text-orange-400 transition duration-200">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                        </svg>
-                    </button>
+                    <!-- Mobile menu button -->
+                    <div class="md:hidden">
+                        <button x-data="{ mobileOpen: false }" @click="mobileOpen = !mobileOpen" class="text-gray-300 hover:text-orange-400 transition duration-200">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
+    </nav>
+
+    <!-- Main Content with padding for fixed nav -->
+    <div class="relative pt-16">
+        @yield('content')
     </div>
-</nav>
 
-<!-- Main Content with padding for fixed nav -->
-<div class="relative pt-16">
-    @yield('content')
-</div>
+    <!-- Include Confirmation Modal -->
+    @include('components.confirmation-modal')
 
-<!-- Include Confirmation Modal -->
-@include('components.confirmation-modal')
+    <!-- Include Toast Notifications -->
+    @include('admin.components.toast')
 
-<!-- Include Toast Notifications -->
-@include('admin.components.toast')
+    <!-- Add CSRF token for AJAX requests -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
-<!-- Add CSRF token for AJAX requests -->
-<meta name="csrf-token" content="{{ csrf_token() }}">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchToggle = document.getElementById('searchToggle');
+            const searchContainer = document.getElementById('searchContainer');
+            const searchForm = searchContainer.querySelector('.search-form');
+            const searchInput = document.getElementById('searchInput');
+            const searchClose = document.getElementById('searchClose');
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const searchToggle = document.getElementById('searchToggle');
-        const searchContainer = document.getElementById('searchContainer');
-        const searchForm = searchContainer.querySelector('.search-form');
-        const searchInput = document.getElementById('searchInput');
-        const searchClose = document.getElementById('searchClose');
+            searchToggle.addEventListener('click', function() {
+                searchForm.classList.remove('hidden');
+                searchToggle.style.display = 'none';
 
-        searchToggle.addEventListener('click', function() {
-            searchForm.classList.remove('hidden');
-            searchToggle.style.display = 'none';
+                // Animate the input width
+                setTimeout(() => {
+                    searchInput.style.width = '300px';
+                    searchInput.style.paddingLeft = '1rem';
+                    searchInput.style.paddingRight = '0.5rem';
+                    searchInput.focus();
+                }, 50);
+            });
 
-            // Animate the input width
-            setTimeout(() => {
-                searchInput.style.width = '300px';
-                searchInput.style.paddingLeft = '1rem';
-                searchInput.style.paddingRight = '0.5rem';
-                searchInput.focus();
-            }, 50);
+            searchClose.addEventListener('click', function() {
+                searchInput.style.width = '0';
+                searchInput.style.paddingLeft = '0';
+                searchInput.style.paddingRight = '0';
+
+                setTimeout(() => {
+                    searchForm.classList.add('hidden');
+                    searchToggle.style.display = 'flex';
+                }, 300);
+            });
+
+            // Close on click outside
+            document.addEventListener('click', function(e) {
+                if (!searchContainer.contains(e.target)) {
+                    searchClose.click();
+                }
+            });
         });
 
-        searchClose.addEventListener('click', function() {
-            searchInput.style.width = '0';
-            searchInput.style.paddingLeft = '0';
-            searchInput.style.paddingRight = '0';
-
-            setTimeout(() => {
-                searchForm.classList.add('hidden');
-                searchToggle.style.display = 'flex';
-            }, 300);
-        });
-
-        // Close on click outside
-        document.addEventListener('click', function(e) {
-            if (!searchContainer.contains(e.target)) {
-                searchClose.click();
+        function confirmLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                document.getElementById('logout-form').submit();
             }
-        });
-    });
-
-    function confirmLogout() {
-        if (confirm('Are you sure you want to logout?')) {
-            document.getElementById('logout-form').submit();
         }
-    }
     </script>
 </body>
+
 </html>
