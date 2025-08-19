@@ -77,6 +77,18 @@
                     <label class="block text-orange-300 font-semibold mb-2"><i class="fas fa-download mr-2"></i>Download Link</label>
                     <input type="text" name="download_link" class="w-full bg-black/30 backdrop-blur-sm border border-white/20 rounded-xl text-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 transition duration-200" value="{{ old('download_link', $movie->download_link) }}" required>
                 </div>
+
+                <!-- Trailer URL -->
+                <div>
+                    <label class="block text-orange-300 font-semibold mb-2">
+                        <i class="fas fa-play-circle mr-2"></i>Trailer URL <span class="text-gray-400 text-sm">(Optional)</span>
+                    </label>
+                    <input type="url" name="trailer_url" class="w-full bg-black/30 backdrop-blur-sm border border-white/20 rounded-xl text-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 transition duration-200" value="{{ old('trailer_url', $movie->trailer_url) }}" placeholder="https://youtube.com/watch?v=... or https://example.com/trailer.mp4">
+                    <p class="text-gray-400 text-xs mt-1">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Supports YouTube URLs and direct video files (MP4, WebM, OGG). Recommended duration: 2-3 minutes
+                    </p>
+                </div>
                 <!-- Submit Button -->
                 <div class="flex justify-end">
                     <button type="submit" class="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg transition-all duration-200 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:ring-offset-2 focus:ring-offset-transparent">

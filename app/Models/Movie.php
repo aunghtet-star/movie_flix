@@ -17,6 +17,7 @@ class Movie extends Model
         'actress',
         'long_time',
         'download_link',
+        'trailer_url',
         'genre_id',
         'year',
         'views',

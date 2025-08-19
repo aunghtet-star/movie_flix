@@ -1,6 +1,68 @@
 @extends('frontend.layouts.app')
 
 @section('content')
+<style>
+    /* Custom Video Player Styles */
+    #trailerPlayer {
+        border-radius: 8px;
+    }
+
+    #trailerPlayer::-webkit-media-controls-panel {
+        background-color: rgba(0, 0, 0, 0.8);
+    }
+
+    #trailerPlayer::-webkit-media-controls-play-button,
+    #trailerPlayer::-webkit-media-controls-volume-slider,
+    #trailerPlayer::-webkit-media-controls-timeline {
+        filter: brightness(1.2);
+    }
+
+    #playButton {
+        transition: all 0.3s ease;
+    }
+
+    #playButton:hover {
+        background-color: rgba(0, 0, 0, 0.7);
+    }
+
+    /* Video loading animation */
+    .video-loading {
+        position: relative;
+    }
+
+    .video-loading::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 40px;
+        height: 40px;
+        margin: -20px 0 0 -20px;
+        border: 3px solid #f97316;
+        border-radius: 50%;
+        border-top-color: transparent;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Responsive video controls */
+    @media (max-width: 768px) {
+        #playButton .fa-play {
+            font-size: 1.5rem;
+        }
+
+        #playButton {
+            width: 60px;
+            height: 60px;
+        }
+    }
+</style>
+
 <div class="container mx-auto px-4 py-8">
     <!-- Movie Details Card -->
     <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-2xl overflow-hidden mb-8 border border-gray-700">
@@ -111,6 +173,116 @@
         </div>
     </div>
 
+    <!-- Trailer Section -->
+    @if($movie->trailer_url)
+    <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-2xl overflow-hidden mb-8 border border-gray-700">
+        <div class="p-8">
+            <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+                <i class="fas fa-play-circle mr-3 text-orange-400"></i>
+                Movie Trailer
+            </h2>
+
+            <!-- Video Player Container -->
+            <div class="relative bg-black rounded-lg overflow-hidden shadow-2xl">
+                <div class="relative" style="padding-bottom: 56.25%; /* 16:9 aspect ratio */">
+                    @php
+                    $isYouTube = false;
+                    $youtubeId = '';
+                    $trailerUrl = $movie->trailer_url ?: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+
+                    // Check if it's a YouTube URL and extract video ID
+                    if (preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i', $trailerUrl, $matches)) {
+                    $isYouTube = true;
+                    $youtubeId = $matches[1];
+                    }
+                    @endphp
+
+                    @if($isYouTube)
+                    <!-- YouTube Embed -->
+                    <iframe
+                        class="absolute top-0 left-0 w-full h-full"
+                        src="https://www.youtube.com/embed/{{ $youtubeId }}?rel=0&modestbranding=1&controls=1&showinfo=0"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen>
+                    </iframe>
+                    @else
+                    <!-- Regular Video Player -->
+                    <video
+                        id="trailerPlayer"
+                        class="absolute top-0 left-0 w-full h-full object-cover"
+                        controls
+                        preload="metadata"
+                        poster="{{ $movie->picture ? Storage::url($movie->picture) : '/image/movie.png' }}"
+                        playsinline>
+                        <source src="{{ $trailerUrl }}" type="video/mp4">
+                        <source src="{{ $trailerUrl }}" type="video/webm">
+                        <source src="{{ $trailerUrl }}" type="video/ogg">
+                        <p class="text-white p-4">
+                            Your browser doesn't support HTML5 video.
+                            <a href="{{ $trailerUrl }}" class="text-orange-400 hover:text-orange-300">
+                                Download the video
+                            </a> instead.
+                        </p>
+                    </video>
+
+                    <!-- Custom Play Button Overlay (only for regular videos) -->
+                    <div id="playButton" class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 cursor-pointer transition-opacity duration-300 hover:bg-opacity-30">
+                        <div class="w-20 h-20 bg-orange-500 rounded-full flex items-center justify-center shadow-2xl transform transition-transform duration-300 hover:scale-110">
+                            <i class="fas fa-play text-white text-2xl ml-1"></i>
+                        </div>
+                    </div>
+                    @endif
+                </div>
+
+                <!-- Video Controls Info (only for regular videos) -->
+                @if(!$isYouTube)
+                <div class="p-4 bg-gray-800 border-t border-gray-700">
+                    <div class="flex items-center justify-between text-sm text-gray-400">
+                        <div class="flex items-center space-x-4">
+                            <span class="flex items-center">
+                                <i class="fas fa-clock mr-1"></i>
+                                <span id="videoDuration">--:--</span>
+                            </span>
+                            <span class="flex items-center">
+                                <i class="fas fa-volume-up mr-1"></i>
+                                Volume: <span id="volumeLevel">100%</span>
+                            </span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button id="volumeBtn" class="hover:text-orange-400 transition-colors duration-200">
+                                <i class="fas fa-volume-up"></i>
+                            </button>
+                            <button id="fullscreenBtn" class="hover:text-orange-400 transition-colors duration-200">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                @else
+                <!-- YouTube Video Info -->
+                <div class="p-4 bg-gray-800 border-t border-gray-700">
+                    <div class="flex items-center justify-center text-sm text-gray-400">
+                        <span class="flex items-center">
+                            <i class="fab fa-youtube mr-2 text-red-500"></i>
+                            YouTube Trailer - Full controls available in player
+                        </span>
+                    </div>
+                </div>
+                @endif
+            </div>
+
+            <!-- Trailer Info -->
+            <div class="mt-4 text-center">
+                <p class="text-gray-400 text-sm">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Official trailer for "{{ $movie->title }}" - Watch a sneak peek before downloading
+                </p>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <!-- Rating System -->
     <div class="mb-8">
         @include('components.simple-rating', ['movie' => $movie, 'userRating' => $userRating])
@@ -201,6 +373,128 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
 <script>
+    // Video Player Functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const video = document.getElementById('trailerPlayer');
+        const playButton = document.getElementById('playButton');
+        const volumeBtn = document.getElementById('volumeBtn');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const volumeLevel = document.getElementById('volumeLevel');
+        const videoDuration = document.getElementById('videoDuration');
+
+        // Only initialize custom controls for regular video players (not YouTube)
+        if (video) {
+            // Initialize video player
+            video.volume = 1.0;
+
+            // Play button functionality
+            if (playButton) {
+                playButton.addEventListener('click', function() {
+                    if (video.paused) {
+                        video.play();
+                        playButton.style.display = 'none';
+                    }
+                });
+            }
+
+            // Hide play button when video starts
+            video.addEventListener('play', function() {
+                if (playButton) {
+                    playButton.style.display = 'none';
+                }
+            });
+
+            // Show play button when video is paused
+            video.addEventListener('pause', function() {
+                if (playButton) {
+                    playButton.style.display = 'flex';
+                }
+            });
+
+            // Update duration when video metadata is loaded
+            video.addEventListener('loadedmetadata', function() {
+                if (videoDuration) {
+                    const minutes = Math.floor(video.duration / 60);
+                    const seconds = Math.floor(video.duration % 60);
+                    videoDuration.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                }
+            });
+
+            // Volume control
+            if (volumeBtn) {
+                volumeBtn.addEventListener('click', function() {
+                    if (video.muted) {
+                        video.muted = false;
+                        volumeBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+                        volumeLevel.textContent = Math.round(video.volume * 100) + '%';
+                    } else {
+                        video.muted = true;
+                        volumeBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                        volumeLevel.textContent = '0%';
+                    }
+                });
+            }
+
+            // Fullscreen functionality
+            if (fullscreenBtn) {
+                fullscreenBtn.addEventListener('click', function() {
+                    if (video.requestFullscreen) {
+                        video.requestFullscreen();
+                    } else if (video.webkitRequestFullscreen) {
+                        video.webkitRequestFullscreen();
+                    } else if (video.msRequestFullscreen) {
+                        video.msRequestFullscreen();
+                    }
+                });
+            }
+
+            // Volume change event
+            video.addEventListener('volumechange', function() {
+                if (volumeLevel && !video.muted) {
+                    volumeLevel.textContent = Math.round(video.volume * 100) + '%';
+                }
+            });
+
+            // Add keyboard controls
+            video.addEventListener('keydown', function(e) {
+                switch (e.code) {
+                    case 'Space':
+                        e.preventDefault();
+                        if (video.paused) {
+                            video.play();
+                        } else {
+                            video.pause();
+                        }
+                        break;
+                    case 'ArrowLeft':
+                        e.preventDefault();
+                        video.currentTime -= 10;
+                        break;
+                    case 'ArrowRight':
+                        e.preventDefault();
+                        video.currentTime += 10;
+                        break;
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        video.volume = Math.min(1, video.volume + 0.1);
+                        break;
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        video.volume = Math.max(0, video.volume - 0.1);
+                        break;
+                }
+            });
+
+            // Add video ended event
+            video.addEventListener('ended', function() {
+                if (playButton) {
+                    playButton.style.display = 'flex';
+                }
+            });
+        }
+    });
+
+    // Watchlist Functions
     function addToWatchlist(movieId) {
         const button = document.getElementById('watchlist-btn');
         const originalContent = button.innerHTML;

@@ -123,6 +123,18 @@
                             </label>
                             <input type="url" id="download_link" name="download_link" value="{{ old('download_link') }}" required class="w-full px-4 py-3 bg-black/30 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 transition duration-200" placeholder="https://example.com/movie-download">
                         </div>
+
+                        <!-- Trailer URL Field -->
+                        <div>
+                            <label for="trailer_url" class="block text-orange-300 font-semibold mb-3">
+                                <i class="fas fa-play-circle mr-2"></i>Trailer URL <span class="text-gray-400 text-sm">(Optional)</span>
+                            </label>
+                            <input type="url" id="trailer_url" name="trailer_url" value="{{ old('trailer_url') }}" class="w-full px-4 py-3 bg-black/30 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 transition duration-200" placeholder="https://youtube.com/watch?v=... or https://example.com/trailer.mp4">
+                            <p class="text-gray-400 text-xs mt-2">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                Supports YouTube URLs and direct video files (MP4, WebM, OGG). Recommended duration: 2-3 minutes
+                            </p>
+                        </div>
                     </div>
                 </div>
 
