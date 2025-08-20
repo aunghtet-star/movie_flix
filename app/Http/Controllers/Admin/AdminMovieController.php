@@ -41,7 +41,7 @@ class AdminMovieController extends Controller
             'movies_this_month' => Movie::whereMonth('created_at', now()->month)
                 ->whereYear('created_at', now()->year)
                 ->count(),
-            'average_rating' => Movie::whereNotNull('ratings')->avg('ratings') ?? 0,
+            'average_rating' => Movie::whereNotNull('average_rating')->avg('average_rating') ?? 0,
             'total_genres' => Genre::count(),
             'top_genre' => $this->getTopGenre(),
         ];
@@ -92,8 +92,8 @@ class AdminMovieController extends Controller
 
             // Initialize default values
             $validated['views'] = 0;
-            $validated['ratings'] = 0;
-            $validated['ratings_count'] = 0;
+            $validated['average_rating'] = 0;
+            $validated['total_ratings'] = 0;
 
             Movie::create($validated);
 
