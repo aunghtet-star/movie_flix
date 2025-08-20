@@ -46,7 +46,7 @@
                     <!-- Rating Badge -->
                     <div class="absolute top-3 left-3 bg-yellow-500 text-black px-3 py-2 rounded-lg font-bold text-sm flex items-center shadow-lg">
                         <i class="fas fa-star mr-1"></i>
-                        {{ number_format($movie->ratings ?? 0, 1) }}
+                        {{ number_format($movie->average_rating ?? 0, 1) }}
                     </div>
 
                     <!-- Year Badge -->
@@ -85,7 +85,7 @@
                     <div class="flex items-center space-x-4 mb-6">
                         <div class="flex text-yellow-400 text-lg">
                             @php
-                            $rating = $movie->ratings ?? 0;
+                            $rating = $movie->average_rating ?? 0;
                             $fullStars = floor($rating / 2);
                             $halfStar = ($rating % 2) >= 1;
                             $emptyStars = 5 - $fullStars - ($halfStar ? 1 : 0);

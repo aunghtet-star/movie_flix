@@ -7,6 +7,7 @@ use App\Models\Movie;
 use App\Models\User;
 use App\Models\Genre;
 use App\Models\Admin;
+use App\Models\MovieRating;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -21,8 +22,8 @@ class DashboardController extends Controller
             'total_users' => User::count(),
             'total_genres' => Genre::count(),
             'total_views' => Movie::sum('views'),
-            'total_ratings' => Movie::whereNotNull('ratings')->count(),
-            'average_rating' => Movie::whereNotNull('ratings')->avg('ratings'),
+            'total_ratings' => MovieRating::count(),
+            'average_rating' => MovieRating::avg('rating'),
         ];
 
         // Get recent movies (last 5)
@@ -38,8 +39,8 @@ class DashboardController extends Controller
 
         // Get top rated movies
         $topRatedMovies = Movie::with('genre')
-            ->whereNotNull('ratings')
-            ->orderBy('ratings', 'desc')
+            ->whereNotNull('average_rating')
+            ->orderBy('average_rating', 'desc')
             ->take(5)
             ->get();
 

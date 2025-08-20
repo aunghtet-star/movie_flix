@@ -90,7 +90,7 @@
                             <p class="text-sm font-semibold text-white drop-shadow">{{ number_format($movie->views) }}
                                 views</p>
                             <p class="text-sm text-gray-300">
-                                Rating: {{ number_format($movie->ratings ?? 0, 1) }}</p>
+                                Rating: {{ number_format($movie->average_rating ?? 0, 1) }}</p>
                         </div>
                     </div>
                 </li>
@@ -126,7 +126,7 @@
                             </div>
                         </div>
                         <span
-                            class="text-sm font-bold text-yellow-400">{{ number_format($movie->ratings, 1) }}</span>
+                            class="text-sm font-bold text-yellow-400">{{ number_format($movie->average_rating ?? 0, 1) }}</span>
                     </li>
                     @empty
                     <li class="text-center py-6">
