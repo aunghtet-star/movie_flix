@@ -2,11 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\Command\Seed;
 use Illuminate\Database\Seeder;
 use App\Models\Movie;
 use App\Models\Genre;
-use Faker\Factory as Faker;
 use Illuminate\Support\Facades\Storage;
 
 class MovieSeeder extends Seeder
@@ -37,8 +35,8 @@ class MovieSeeder extends Seeder
                 'download_link' => 'https://example.com/joker-download',
                 'long_time' => '2h 2m',
                 'views' => 12000,
-                'ratings' => 4.5,
-                'ratings_count' => 350,
+                'average_rating' => 4.5,
+                'total_ratings' => 350,
             ],
             [
                 'title' => 'Inception',
@@ -49,8 +47,8 @@ class MovieSeeder extends Seeder
                 'download_link' => 'https://example.com/inception-download',
                 'long_time' => '2h 28m',
                 'views' => 15000,
-                'ratings' => 4.8,
-                'ratings_count' => 500,
+                'average_rating' => 4.8,
+                'total_ratings' => 500,
             ],
             [
                 'title' => 'Avengers: Endgame',
@@ -61,17 +59,20 @@ class MovieSeeder extends Seeder
                 'download_link' => 'https://example.com/avengers-download',
                 'long_time' => '3h 1m',
                 'views' => 20000,
-                'ratings' => 4.7,
-                'ratings_count' => 800,
+                'average_rating' => 4.7,
+                'total_ratings' => 800,
             ],
         ];
 
         foreach ($movies as $i => $data) {
             $imageName = 'movie_' . ($i + 1) . '.jpg';
             $imagePath = 'movies/' . $imageName;
+
+            // Copy default image if it exists
             if (file_exists(public_path('image/movie.png'))) {
                 Storage::copy('public/image/movie.png', 'public/' . $imagePath);
             }
+
             Movie::create([
                 'picture' => $imagePath,
                 'title' => $data['title'],
@@ -83,8 +84,8 @@ class MovieSeeder extends Seeder
                 'download_link' => $data['download_link'],
                 'long_time' => $data['long_time'],
                 'views' => $data['views'],
-                'ratings' => $data['ratings'],
-                'ratings_count' => $data['ratings_count'],
+                'average_rating' => $data['average_rating'],
+                'total_ratings' => $data['total_ratings'],
             ]);
         }
     }
